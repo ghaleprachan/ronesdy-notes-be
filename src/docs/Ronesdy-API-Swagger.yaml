@@ -1,0 +1,1707 @@
+openapi: 3.0.0
+info:
+  title: Ronesdy API
+  version: '1.0'
+servers:
+  - url: 'http://localhost:3000/api/v1'
+    description: Local development server    
+  - url: 'https://ronesdy.managedcoder.com/api/v1'
+    description: dev development server
+tags:
+  - name: Path API
+    description: Everything about the path routes
+  - name: Canvas API
+    description: Everything about the canvas routes
+  - name: Auth API
+    description: Everything about the user routes
+  - name: User API
+    description: Everything about the user routes
+  - name: Marketplace API
+    description: Everything about the marketplace routes
+
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth API
+      summary: Authenticate user
+      description: Authenticate a user by providing credentials.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                token: your-auth-token
+        '401':
+          description: Unauthorized
+        '404':
+          description: Invalid email or password
+
+  /auth/signup:
+    post:
+      tags:
+        - Auth API
+      summary: Register a new user
+      description: Create a new user account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Bad request
+        '409':
+          description: Conflict Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email Id already exist'
+
+  /auth/forgot-password:
+    patch:
+      tags:
+        - Auth API
+      summary: Forgot password
+      description: Used when user forgets password, it sends a mail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string 
+      responses:
+        '201':
+          description: Email sent
+        '400':
+          description: Bad request
+        '404':
+          description: Not Found Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'User not found'
+
+  /auth/reset-password:
+    post:
+      tags:
+        - Auth API
+      summary: Reset Password
+      description: Sets new password for user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string 
+                password:
+                  type: string
+                otp:
+                  type: string
+      responses:
+        '201':
+          description: User created
+        '400':
+          description: Bad request
+        '409':
+          description: Conflict Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: 'Email Id already exist'
+
+  /user/:
+    get:
+      servers:
+        - url: 'http://localhost:3000/api/v1'
+      tags:
+        - User API
+      summary: Get User Data
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+    delete:
+      servers:
+        - url: '{protocol}://{host}:{port}'
+      tags:
+        - User API
+      summary: Delete User Data
+      description: Permanently deletes all user data includes user credentials also
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '204':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  isDeleted:
+                    type: boolean
+                    example: true
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+
+  /user/password:
+    patch:
+      servers:
+        - url: '{protocol}://{host}:{port}'
+      tags:
+        - User API
+      summary: Change user password
+      description: Changes user password based on jwt token
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password:
+                    type: string
+                    example: admin@1234
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+
+  /path/create-file:
+    post:
+      tags:
+        - Path API
+      summary: Creates a file
+      description: This created a file along with a canvas
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFileRequest'
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFileResponse'
+        '500':
+          description: internal server error
+
+  /path/files-and-folders:
+    get:
+      tags:
+        - Path API
+      summary: Get All Files and Folders
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '200':
+          description: All Files and Folders of user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFilesAndFoldersResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+
+  /path/create-folder:
+    post:
+      tags:
+        - Path API
+      summary: Creates a folder
+      description: User can create a folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFolderResponse'
+        '500':
+          description: internal server error
+
+  /path/folder/{id}:
+    delete:
+      tags:
+        - Path API
+      summary: Delete a Folder
+      description: Deletes all folders, files related to the folder
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '204':
+          description: Deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+        '404':
+          description: Not Found
+
+  /path/rename-folder:
+    patch:
+      tags:
+        - Path API
+      summary: Renames a folder
+      description: User can rename a folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameFolderRequest'
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenameFolderResponse'
+        '500':
+          description: internal server error
+
+  /path/file/{id}:
+    get:
+      tags:
+        - Path API
+      summary: Get File Data by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID of the file to retrieve
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '200':
+          description: File Data with all the canvas objects of that file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetFileByFileIDResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '404'
+                  message:
+                    type: string
+                    example: 'File not Found'
+    delete:
+      tags:
+        - Path API
+      summary: Delete a File
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '204':
+          description: Deleted successfully
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '400'
+                  message:
+                    type: string
+                    example: 'Bad Request'
+        '401':
+          description: Unauthorized/Token Expired
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: string
+                    example: '401'
+                  message:
+                    type: string
+                    example: 'Unauthorized/Token Expired'
+        '404':
+          description: Not Found
+  /path/file:
+    patch:
+      tags:
+        - Path API
+      summary: update file
+      description: User can rename a file, add the file to the favorites folder.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                fileID:
+                  type: string
+      responses:
+        '200':
+          description: User Data Object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateFileResponse'
+        '500':
+          description: internal server error
+
+  /path/recover-all:
+    patch:
+      tags:
+        - Path API
+      summary: Recover All Files and Folders
+      description: Restore all files and folders for the currently authenticated user.
+      parameters:
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                  description: The user's ID derived from the authentication token.
+      responses:
+        204:
+          description: Successful operation
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                error: 'Invalid request format'
+        401:
+          description: Unauthorized
+        500:
+          description: Internal Server Error
+
+  /path/recover:
+    post:
+      tags:
+        - Path API
+      summary: Recover File or Folder
+      description: Restore a file or folder for a user.
+      parameters:
+        - name: id
+          in: query
+          description: The ID of the folder or file to recover.
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: The type of the item (1 for folder, 2 for file).
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                  description: The user's ID obtained from the authentication token.
+                id:
+                  type: string
+                  description: The type of the item (1 for folder, 2 for file).
+      responses:
+        204:
+          description: Successful operation
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error: 'No Access'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                success: false
+                message: 'Incorrect parameters'
+        500:
+          description: Internal Server Error
+
+  /path/bin:
+    patch:
+      tags:
+        - Path API
+      summary: Move to Recycle Bin
+      description: Move a folder or file to the recycle bin.
+      parameters:
+        - name: id
+          in: query
+          description: The ID of the folder or file to move to the recycle bin.
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: The type of the item (1 for folder, 2 for file).
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                  description: The user's ID obtained from the authentication token.
+                id:
+                  type: string
+                  description: The type of the item (1 for folder, 2 for file).
+      responses:
+        204:
+          description: Successfully moved to the recycle bin
+          content:
+            application/json:
+              example:
+                success: true
+                message: 'Item moved to recycle successfully'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error: 'No Access'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                success: false
+                message: 'Incorrect parameters'
+        500:
+          description: Internal Server Error
+    get:
+      tags:
+        - Path API
+      summary: Retrieve Recycle Bin
+      description: Get a user's recycle bin contents, including folders and files.
+      parameters:
+        - name: userID
+          in: query
+          description: The user's ID obtained from the authentication token.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Successfully fetched recycle bin contents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRecycleBinResponse'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error: 'No Access'
+        500:
+          description: Internal Server Error
+    delete:
+      tags:
+        - Path API
+      summary: Permanently Delete All Files and Folders
+      description: Permanently delete all files and folders for a user.
+      responses:
+        204:
+          description: Successful operation
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              example:
+                error: 'No Access'
+        500:
+          description: Internal Server Error
+
+  /canvas:
+    post:
+      tags:
+        - Canvas API
+      summary: Create a new canvas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fileID:
+                  type: string
+                  example: '12345'
+                pageNo:
+                  type: integer
+                  example: 1
+                paths:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      drawer:
+                        type: string
+                        example: 'John Doe'
+                      path:
+                        $ref: '#/components/schemas/PathObject'
+                      size:
+                        $ref: '#/components/schemas/Size'
+                createdAt:
+                  type: string
+                  format: date-time
+                  example: '2023-10-16T10:00:00Z'
+      responses:
+        '201':
+          description: Canvas succesfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCanvasResponse'
+        '400':
+          description: Bad request
+    put:
+      tags:
+        - Canvas API
+      summary: Syncs an entire canvas
+      description: User can sync an entire canvas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCanvasRequest'
+      responses:
+        '204':
+          description: Updated Canvas response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateCanvasResponse'
+        '500':
+          description: internal server error
+
+  /canvas/{id}:
+    delete:
+      tags:
+        - Canvas API
+      summary: Delete a canvas
+      description: User can delete a canvas and it will update the pages number
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+          description: User authentication token
+      responses:
+        '200':
+          description: Canvas deleted
+        '500':
+          description: internal server error
+
+  /marketplace/listing:
+    get:
+      tags:
+        - Marketplace API
+      summary: Get all marketplace files
+      description: Retrieve all files listed in the marketplace.
+      responses:
+        '200':
+          description: Files fetched successfully
+    
+    patch:
+      tags:
+        - Marketplace API
+      summary: Edit marketplace file
+      description: Update details of a file listed in the marketplace.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                listingId:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: string
+                courseName:
+                  type: string
+                noteTaker:
+                  type: string
+                lecture:
+                  type: string
+                bgColor:
+                  type: string
+                university:
+                  type: string
+                type:
+                  type: string
+                price:
+                  type: number
+      responses:
+        '200':
+          description: File updated successfully
+        '400':
+          description: Missing listing ID or other required data
+
+    post:
+      tags:
+        - Marketplace API
+      summary: Upload a file to marketplace
+      description: Upload a new file to be listed in the marketplace.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                fileID:
+                  type: string
+                title:
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: string
+                courseName:
+                  type: string
+                noteTaker:
+                  type: string
+                lecture:
+                  type: string
+                bgColor:
+                  type: string
+                university:
+                  type: string
+                type:
+                  type: string
+                price:
+                  type: number
+      responses:
+        '201':
+          description: File uploaded successfully
+        '400':
+          description: Missing file ID or other required data
+
+  /marketplace/cart:
+    get:
+      tags:
+        - Marketplace API
+      summary: Get cart items
+      description: Retrieve items in the user's cart.
+      responses:
+        '200':
+          description: Cart items fetched successfully
+    post:
+      tags:
+        - Marketplace API
+      summary: Add to cart
+      description: Add a marketplace file to the user's cart.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userID:
+                  type: string
+                fileID:
+                  type: string
+      responses:
+        '201':
+          description: Item added to cart successfully
+        '409':
+          description: Item already in cart
+
+  /marketplace/search:
+    get:
+      tags:
+        - Marketplace API
+      summary: Search marketplace files
+      description: Search for files in the marketplace using a query string.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 25
+      responses:
+        '200':
+          description: Search results fetched successfully
+
+  /marketplace/my-uploads:
+    get:
+      tags:
+        - Marketplace API
+      summary: Get user uploads
+      description: Retrieve files uploaded by the user in the marketplace.
+      responses:
+        '200':
+          description: User uploads fetched successfully
+
+  /marketplace/listing/{id}:
+    get:
+      tags:
+        - Marketplace API
+      summary: Get file details
+      description: Retrieve details for a specific file in the marketplace.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File details fetched successfully
+
+  /marketplace/draft:
+    get:
+      tags:
+        - Marketplace API
+      summary: Get draft files
+      description: Retrieve draft files of the user.
+      responses:
+        '200':
+          description: Draft files fetched successfully
+
+components:
+  schemas:
+    MarketplaceFile:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Unique identifier for the marketplace file
+        title:
+          type: string
+          description: Title of the marketplace file
+        description:
+          type: string
+          description: Description of the marketplace file
+        userID:
+          type: string
+          format: ObjectId
+          description: Reference to the user who owns the marketplace file
+        fileID:
+          type: string
+          format: ObjectId
+          description: Reference to the actual file
+        status:
+          type: string
+          description: Current status of the marketplace file
+        courseName:
+          type: string
+          description: Name of the course related to the marketplace file
+        noteTaker:
+          type: string
+          description: Name of the person who took the notes
+        lecture:
+          type: string
+          description: Lecture details related to the marketplace file
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the marketplace file was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the marketplace file was last updated
+        previewCanvases:
+          type: array
+          items:
+            type: string
+          description: Array of preview canvas data as strings
+        bgColor:
+          type: string
+          description: Background color for the file display
+        university:
+          type: string
+          description: University associated with the marketplace file
+        type:
+          type: string
+          description: Type of the marketplace file
+        price:
+          type: string
+          description: Price of the marketplace file
+      required:
+        - title
+        - userID
+        - fileID
+        - price
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        registerType:
+          type: array
+          items:
+            type: string
+            enum:
+              - register
+              - google
+      required:
+        - FirstName
+        - LastName
+        - email
+        - Password
+        - registerType
+      example:
+        _id: '5f8c66287af2f24c3bbaa1d5'
+        firstName: 'John'
+        lastName: 'Doe'
+        email: 'johndoe@example.com'
+        password: 'mysecurepassword'
+        registerType: ['register']
+
+    ShapeObject:
+      type: object
+      properties:
+        color:
+          type: string
+          example: 'red'
+        type:
+          type: string
+          example: 'square'
+        height:
+          type: number
+          example: 800
+        width:
+          type: number
+          example: 600
+        x:
+          type: number
+          example: 800
+        y:
+          type: number
+          example: 600
+
+    PathObject:
+      type: object
+      properties:
+        color:
+          type: string
+          example: 'red'
+        data:
+          type: array
+          items:
+            type: string
+          example: ['327.5,226', '327.5,226.5']
+        id:
+          type: integer
+          example: 12345
+        width:
+          type: number
+          example: 1.5
+
+    Size:
+      type: object
+      properties:
+        height:
+          type: number
+          example: 800
+        width:
+          type: number
+          example: 600
+
+    File:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+        fileName:
+          type: string
+        folderID:
+          type: string
+          format: ObjectId
+        userID:
+          type: string
+          format: ObjectId
+        isFavorite:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        localFileID:
+          type: string
+        fileTemplate:
+          type: string
+      example:
+        _id: 5f8c66287af2f24c3bbaa1d6
+        example: 'example.txt'
+        folderID: '5f8c66287af2f24c3bbaa1d5'
+        userID: 6sad326287af2f24c3bbaa1d5
+        isFavorite: true
+        createdAt: '2023-10-18T12:00:00Z'
+        updatedAt: '2023-10-19T10:30:00Z'
+        localFileID: 'local12345'
+        fileTemplate: BLANK
+
+    Folder:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+        folderName:
+          type: string
+        userID:
+          type: string
+          format: ObjectId
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        localFolderID:
+          type: string
+        file:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+          example:
+            - fileName: 'file1'
+              _id: 'file_1'
+              isFavorite: true
+              createdAt: '2023-10-18T12:00:00Z'
+              updatedAt: '2023-10-19T10:30:00Z'
+              localFileID: 'localfile1'
+            - fileName: 'file2'
+              _id: 'file_2'
+              isFavorite: false
+              createdAt: '2023-10-18T12:30:00Z'
+              updatedAt: '2023-10-19T11:00:00Z'
+              localFileID: 'localfile2'
+      example:
+        _id: 5f8c66287af2f24c3bbaa1d7
+        folderName: Documents
+        userID: 6f8c88217af2f24c3bbaa1d7
+        createdAt: '2023-10-18T12:00:00Z'
+        updatedAt: '2023-10-19T10:30:00Z'
+        localFolderID: 'local12345'
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: mandar.joshi@sjinnovation.com
+        password: password123
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    SignupRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+      example:
+        firstName: Mandar
+        lastName: Joshi
+        password: mandar@joshi
+        email: mandar.joshi@sjinnovation.com
+
+    CanvasResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '12345789'
+        fileID:
+          type: string
+          example: '12345'
+        pageNo:
+          type: integer
+          example: 1
+        canvasTemplate:
+          type: string
+          example: BLANK
+        paths:
+          type: array
+          items:
+            type: object
+            properties:
+              drawer:
+                type: string
+                example: 'John Doe'
+              path:
+                $ref: '#/components/schemas/PathObject'
+              size:
+                $ref: '#/components/schemas/Size'
+        shape:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ShapeObject'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-10-16T10:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          example: '2023-10-16T10:00:00Z'
+
+    GetFilesAndFoldersResponse:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            properties:
+              _id:
+                type: string
+                format: ObjectId
+              folderName:
+                type: string
+              createdAt:
+                type: string
+              updatedAt:
+                type: string
+              localFolderID:
+                type: string
+              files:
+                type: array
+                items:
+                  properties:
+                    _id:
+                      type: string
+                      format: ObjectId
+                    fileName:
+                      type: string
+                    isFavorite:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    localFileID:
+                      type: string
+                    fileTemplate:
+                      type: string
+                      example: BLANK
+                    canvas:
+                      type: array
+                      items:
+                        allOf:
+                          - $ref: '#/components/schemas/CanvasResponse'
+                  example:
+                    _id: 5f8c66287af2f24c3bbaa1d6
+                    example: 'example.txt'
+                    isFavorite: true
+                    createdAt: '2023-10-18T12:00:00Z'
+                    updatedAt: '2023-10-19T10:30:00Z'
+                    localFileID: 'local12345'
+        files:
+          type: array
+          items:
+            properties:
+              _id:
+                type: string
+                format: ObjectId
+              fileName:
+                type: string
+              isFavorite:
+                type: boolean
+              createdAt:
+                type: string
+              updatedAt:
+                type: string
+              localFileID:
+                type: string
+              fileTemplate:
+                type: string
+                example: BLANK
+              canvas:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/CanvasResponse'
+
+    CreateFileRequest:
+      type: object
+      properties:
+        folderID:
+          type: string
+        file:
+          type: object
+          properties:
+            localFileID:
+              type: string
+            fileName:
+              type: string
+            fileTemplate:
+              type: string
+              example: BLANK
+            canvas:
+              type: array
+              items:
+                type: object
+                properties:
+                  pageNo:
+                    type: integer
+                    example: 1
+                  paths:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        drawer:
+                          type: string
+                          example: 'John Doe'
+                        path:
+                          $ref: '#/components/schemas/PathObject'
+                        size:
+                          $ref: '#/components/schemas/Size'
+                  shape:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/ShapeObject'
+
+    CreateFileResponse:
+      type: object
+      properties:
+        folderID:
+          type: string
+        file:
+          type: object
+          properties:
+            localFileID:
+              type: string
+            fileName:
+              type: string
+            fileTemplate:
+              type: string
+              example: BLANK
+            canvas:
+              type: array
+              items:
+                allOf:
+                  - $ref: '#/components/schemas/CanvasResponse'
+
+    GetFileByFileIDResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CanvasResponse'
+      properties:
+        canvas:
+          type: array
+          items:
+            $ref: '#/components/schemas/CanvasResponse'
+
+    CreateFolderRequest:
+      type: object
+      properties:
+        folderName:
+          type: string
+        localFolderID:
+          type: string
+
+    CreateFolderResponse:
+      type: object
+      properties:
+        folderName:
+          type: string
+        _id:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      example:
+        _id: 5f8c66287af2f24c3bbaa1d6
+        folderName: 'example.txt'
+        createdAt: '2023-10-18T12:00:00Z'
+        updatedAt: '2023-10-19T10:30:00Z'
+        localFolderID: 'local12345'
+
+    CreateCanvasRequest:
+      type: object
+      properties:
+        fileID:
+          type: string
+          example: '12345'
+        pageNo:
+          type: integer
+          example: 1
+        paths:
+          type: array
+          items:
+            type: object
+            properties:
+              drawer:
+                type: string
+                example: 'John Doe'
+              path:
+                $ref: '#/components/schemas/PathObject'
+              size:
+                $ref: '#/components/schemas/Size'
+        shape:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ShapeObject'
+
+    CreateCanvasResponse:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '12345789'
+        fileID:
+          type: string
+          example: '12345'
+        pageNo:
+          type: integer
+          example: 1
+        paths:
+          type: array
+          items:
+            type: object
+            properties:
+              drawer:
+                type: string
+                example: 'John Doe'
+              path:
+                $ref: '#/components/schemas/PathObject'
+              size:
+                $ref: '#/components/schemas/Size'
+        shape:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ShapeObject'
+        createdAt:
+          type: string
+          format: date-time
+          example: '2023-10-16T10:00:00Z'
+
+    UpdateCanvasRequest:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '5f8c66287af2f24c3bbaa1d6'
+          description: The Canvas ID
+        fileID:
+          type: string
+          format: ObjectId
+          example: '5f8c66287af2f24c3bbaa1d6'
+          description: Referencing files collection
+        pageNo:
+          type: number
+          example: 1
+        paths:
+          type: array
+          items:
+            type: object
+            properties:
+              drawer:
+                type: string
+                example: 'John Doe'
+              path:
+                $ref: '#/components/schemas/PathObject'
+              size:
+                $ref: '#/components/schemas/Size'
+        shape:
+          type: array
+          items:
+            allOf:
+              - $ref: '#/components/schemas/ShapeObject'
+
+    UpdateCanvasResponse:
+      type: object
+      properties:
+        canvas:
+          items:
+            allOf:
+              - $ref: '#/components/schemas/CanvasResponse'
+
+    RenameFolderRequest:
+      type: object
+      properties:
+        foldeName:
+          type: string
+          example: 'John Doe'
+        folderID:
+          type: string
+          example: 'folder_1'
+
+    RenameFolderResponse:
+      type: object
+      properties:
+        folderName:
+          type: string
+          example: 'John Doe'
+        _id:
+          type: string
+          example: 'folder_1'
+        updated:
+          type: boolean
+          example: true
+        updatedAt:
+          type: string
+          example: '2023-10-16T10:00:00Z'
+
+    GetRecycleBinResponse:
+      type: object
+      properties:
+        folder:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+          example:
+            - folderID: 'folder_1'
+              file:
+                - fileName: 'file1'
+                  _id: 'file_1'
+                  isFavorite: true
+                  createdAt: '2023-10-18T12:00:00Z'
+                  updatedAt: '2023-10-19T10:30:00Z'
+                  localFileID: 'localfile1'
+                - fileName: 'file2'
+                  _id: 'file_2'
+                  isFavorite: false
+                  createdAt: '2023-10-18T12:30:00Z'
+                  updatedAt: '2023-10-19T11:00:00Z'
+                  localFileID: 'localfile2'
+              createdAt: '2023-10-18T08:00:00Z'
+              updatedAt: '2023-10-19T09:30:00Z'
+              localFolderID: 'localfolder1'
+        file:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+          example:
+            - fileName: 'file3'
+              _id: 'file_3'
+              isFavorite: true
+              createdAt: '2023-10-18T12:45:00Z'
+              updatedAt: '2023-10-19T12:15:00Z'
+              localFileID: 'localfile3'
+            - fileName: 'file4'
+              _id: 'file_4'
+              isFavorite: false
+              createdAt: '2023-10-18T13:00:00Z'
+              updatedAt: '2023-10-19T13:30:00Z'
+              localFileID: 'localfile4'

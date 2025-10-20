@@ -1,0 +1,33 @@
+{
+  "response": {
+    "canvasTemplate": null,
+    "fileID": "656efe031e034aca5d877dd4",
+    "localCanvasID": "54234243",
+    "pageNo": 2,
+    "paths": [
+      {
+        "drawer": "John Doe",
+        "path": {
+          "color": "red",
+          "data": ["327.5,226", "327.5,226.5"],
+          "id": 12345,
+          "width": 1.5,
+          "_id": "656efe151e034aca5d877de0"
+        },
+        "size": {
+          "height": 800,
+          "width": 600,
+          "_id": "656efe151e034aca5d877de1"
+        },
+        "_id": "656efe151e034aca5d877ddf"
+      }
+    ],
+    "isBookmarked": false,
+    "localFileID": null,
+    "_id": "656efe151e034aca5d877dde",
+    "shapes": [],
+    "createdAt": "2023-12-05T10:40:21.536Z",
+    "updatedAt": "2023-12-05T10:40:21.536Z",
+    "__v": 0
+  }
+}
