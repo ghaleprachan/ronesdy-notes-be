@@ -28,7 +28,8 @@ const config: any = {
   STRIPE_COUNTRY: process.env.STRIPE_COUNTRY,
   STRIPE_CONTROLLER: process.env.STRIPE_CONTROLLER,
   STRIPE_DASHBOARD: process.env.STRIPE_DASHBOARD,
-  APPLE_SHARED_SECRET: process.env.APPLE_SHARED_SECRET
+  APPLE_SHARED_SECRET: process.env.APPLE_SHARED_SECRET,
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 };
 
 export default config;

@@ -15,6 +15,7 @@ import cors from 'cors';
 import marketplaceRouter from './routes/marketplace';
 import walletRouter from './routes/wallet';
 import adminRouter from './routes/admin';
+import chatRouter from './routes/chat';
 
 // Initialize Express application
 const app = express();
@@ -44,6 +45,7 @@ app.use('/api/v1/canvas', authenticate, canvasRouter); // Canvas routes (require
 app.use('/api/v1/marketplace', authenticate, marketplaceRouter); // Marketplace routes (requires authentication)
 app.use('/api/v1/wallet', authenticate, walletRouter); // Wallet routes (requires authentication)
 app.use('/api/v1/admin', authenticateAdmin, adminRouter); // Admin routes (requires admin authentication)
+app.use('/api/v1/chat', chatRouter); // Chat routes (authentication handled in chat routes)
 
 // Global error handler middleware
 app.use(errorHandler);
